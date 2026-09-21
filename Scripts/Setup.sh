@@ -76,7 +76,9 @@ bash "$INSTALL_ENGINE_MODS" "${EXTRA_ARGS[@]}"
 echo -e "Checking ThirdParty dependencies...\n"
 bash "$SYNC_DEPS" "${EXTRA_ARGS[@]}"
 
-PLUGIN_SETUP_SCRIPTS=$(find "$TEMPO_ROOT" -mindepth 2 -maxdepth 2 -name "Setup.sh" -not -path "$SCRIPT_DIR/Setup.sh" -print -quit)
-if [ -n "$PLUGIN_SETUP_SCRIPTS" ]; then
-  bash "$PLUGIN_SETUP_SCRIPTS"
-fi
+# Plugins nested inside Tempo (currently only TempoROS) manage their own dependencies. They are
+# opt-in, so pass -if-enabled: setting up Tempo must never opt a project into a plugin it has not
+# enabled. Running such a plugin's own Setup.sh directly is what opts in.
+while IFS= read -r -d '' PLUGIN_SETUP_SCRIPT; do
+  bash "$PLUGIN_SETUP_SCRIPT" -if-enabled "${EXTRA_ARGS[@]}"
+done < <(find "$TEMPO_ROOT" -mindepth 2 -maxdepth 2 -name "Setup.sh" -not -path "$SCRIPT_DIR/Setup.sh" -print0)
