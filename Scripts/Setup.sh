@@ -50,8 +50,8 @@ INSTALL_ENGINE_MODS="$SCRIPT_DIR/InstallEngineMods.sh"
 
 if [ "$SKIP_HOOKS" -ne 1 ]; then
   if [ -z "$GIT_DIR" ]; then
-    GIT_DIR=$(git rev-parse --git-common-dir);
-    if [ $? -ne 0 ]; then
+    GIT_DIR=$(git rev-parse --git-common-dir) || GIT_DIR="";
+    if [ -z "$GIT_DIR" ]; then
       echo "Failed to find .git folder"
       exit 1
     fi
