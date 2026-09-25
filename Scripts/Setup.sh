@@ -78,5 +78,8 @@ bash "$SYNC_DEPS" "${EXTRA_ARGS[@]}"
 
 PLUGIN_SETUP_SCRIPTS=$(find "$TEMPO_ROOT" -mindepth 2 -maxdepth 2 -name "Setup.sh" -not -path "$SCRIPT_DIR/Setup.sh" -print -quit)
 if [ -n "$PLUGIN_SETUP_SCRIPTS" ]; then
-  bash "$PLUGIN_SETUP_SCRIPTS"
+  # Pass the same arguments on: without this, `Setup.sh -force` stops being forced at
+  # the plugin boundary, and a plugin whose dependencies need updating drops back to
+  # an interactive prompt - which is exactly what the caller used -force to avoid.
+  bash "$PLUGIN_SETUP_SCRIPTS" "${EXTRA_ARGS[@]}"
 fi
